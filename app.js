@@ -81,7 +81,7 @@ function updateSearchPlaceholder() {
   if (!input) return;
 
   if (searchType === "item_code") {
-    input.placeholder = "Search item code (ex: TEST-001)";
+    input.placeholder = "Search item code (ex: WH-000000001)";
     return;
   }
 
@@ -387,14 +387,8 @@ async function refreshData(showToast = false) {
   }
 }
 
-function generateItemCode() {
-  const stamp = Date.now().toString().slice(-8);
-  return `ITEM-${stamp}`;
-}
-
 async function addRow() {
   const payload = {
-    item_code: generateItemCode(),
     item_name: "New Item",
     project_name: "",
     status: "received",
@@ -406,7 +400,7 @@ async function addRow() {
     const { error } = await db.from("items").insert(payload);
     if (error) throw error;
 
-    showMessage(`Item ${payload.item_code} created.`, "success");
+    showMessage("New warehouse item created.", "success");
     await refreshData();
   } catch (error) {
     console.error(error);
