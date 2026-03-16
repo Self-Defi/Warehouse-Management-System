@@ -367,7 +367,8 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(122, 90, 67, 0.16);
 }
 
-.link-button {
+.link-button,
+.project-button {
   width: 100%;
   padding: 11px 12px;
   border: 1px solid #bfa48d;
@@ -380,7 +381,8 @@ textarea:focus {
   font-weight: 600;
 }
 
-.link-button:hover {
+.link-button:hover,
+.project-button:hover {
   background: #fcf7f2;
   border-color: var(--kw-brown);
 }
