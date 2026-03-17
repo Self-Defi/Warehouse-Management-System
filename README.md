@@ -58,3 +58,10 @@ Example:
 ### 1. Clone Repo
 ```bash
 git clone https://github.com/YOUR-ORG/Kaitlyn-Wolfe.WMS.git
+
+## 🛡️ Legal & Philosophy
+
+- [Philosophy](PHILOSOPHY.md)
+- [Notice](NOTICE.md)
+- [Terms](TERMS.md)
+- [License](LICENSE)
