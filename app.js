@@ -1,4 +1,5 @@
-const STATUS_OPTIONS = ["received", "hold", "delivered", "inspection"];
+const db = window.db;
+const STATUS_OPTIONS = ["received", "inspection", "racked", "hold", "delivered"];
 const STORAGE_BUCKET = "item-images";
 
 let inventory = [];
@@ -32,9 +33,10 @@ function formatDisplayDate(dateValue) {
 function getStatusLabel(status) {
   const map = {
     received: "Received",
+    inspection: "Inspection",
+    racked: "Racked",
     hold: "Hold",
-    delivered: "Delivered",
-    inspection: "Inspection"
+    delivered: "Delivered"
   };
   return map[status] || status || "";
 }
@@ -148,19 +150,22 @@ function renderItemImage(row) {
   const imageEl = document.getElementById("detailImage");
   const placeholderEl = document.getElementById("imagePlaceholder");
   const replaceBtn = document.getElementById("replaceImageBtn");
+  const uploadBtn = document.getElementById("uploadImageBtn");
 
-  if (!imageEl || !placeholderEl || !replaceBtn) return;
+  if (!imageEl || !placeholderEl || !replaceBtn || !uploadBtn) return;
 
   if (row?.image_url) {
     imageEl.src = row.image_url;
     imageEl.classList.remove("hidden");
     placeholderEl.classList.add("hidden");
     replaceBtn.classList.remove("hidden");
+    uploadBtn.classList.add("hidden");
   } else {
     imageEl.src = "";
     imageEl.classList.add("hidden");
     placeholderEl.classList.remove("hidden");
     replaceBtn.classList.add("hidden");
+    uploadBtn.classList.remove("hidden");
   }
 }
 
@@ -222,12 +227,14 @@ function openRackModal(rackCode) {
   body.innerHTML = "";
 
   const receivedCount = rackItems.filter((item) => item.status === "received").length;
+  const rackedCount = rackItems.filter((item) => item.status === "racked").length;
   const deliveredCount = rackItems.filter((item) => item.status === "delivered").length;
 
   [
     `Rack: ${rackCode}`,
     `Records: ${rackItems.length}`,
     `Received: ${receivedCount}`,
+    `Racked: ${rackedCount}`,
     `Delivered: ${deliveredCount}`
   ].forEach((text) => {
     const chip = document.createElement("div");
@@ -437,6 +444,17 @@ async function updateField(itemId, field, value) {
 
     if (field === "status" && value === "delivered") {
       payload.rack_code = null;
+    }
+
+    if (field === "rack_code") {
+      if (value && value !== "") {
+        payload.status = "racked";
+      } else {
+        const currentItem = findItemById(itemId);
+        if (currentItem && currentItem.status === "racked") {
+          payload.status = "received";
+        }
+      }
     }
 
     const { error } = await db.from("items").update(payload).eq("id", itemId);
