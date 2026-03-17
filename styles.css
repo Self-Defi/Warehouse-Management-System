@@ -225,6 +225,23 @@ p {
 
 .item-card-image {
   display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.image-frame {
+  width: 100%;
+}
+
+.detail-image {
+  width: 100%;
+  min-height: 260px;
+  max-height: 360px;
+  object-fit: cover;
+  border: 1px solid #cfbead;
+  border-radius: 18px;
+  display: block;
+  background: #f6efe8;
 }
 
 .image-placeholder {
@@ -251,6 +268,16 @@ p {
 .image-placeholder small {
   font-size: 0.95rem;
   color: var(--kw-brown);
+}
+
+.upload-panel {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.upload-btn {
+  width: 100%;
 }
 
 .item-card-content {
