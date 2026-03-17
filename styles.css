@@ -343,7 +343,7 @@ p {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1200px;
+  min-width: 1320px;
 }
 
 thead th {
@@ -430,6 +430,10 @@ textarea:focus {
   width: 100%;
   padding: 9px 12px;
   text-align: center;
+}
+
+.qty-input {
+  max-width: 110px;
 }
 
 .add-btn,
@@ -607,7 +611,7 @@ textarea:focus {
 }
 
 .rack-table {
-  min-width: 700px;
+  min-width: 760px;
 }
 
 .rack-table th,
