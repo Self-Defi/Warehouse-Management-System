@@ -76,9 +76,18 @@
     <section id="itemCardSection" class="item-card-section hidden">
       <div class="item-card">
         <div class="item-card-image">
-          <div class="image-placeholder">
-            <span>Warehouse Item</span>
-            <small>Live record loaded from backend</small>
+          <div class="image-frame">
+            <img id="detailImage" class="detail-image hidden" alt="Item photo" />
+            <div id="imagePlaceholder" class="image-placeholder">
+              <span>Warehouse Item</span>
+              <small>No image uploaded yet</small>
+            </div>
+          </div>
+
+          <div class="upload-panel">
+            <input id="detailImageInput" type="file" accept="image/*" class="hidden" />
+            <button id="uploadImageBtn" class="add-btn upload-btn" type="button">Upload Photo</button>
+            <button id="replaceImageBtn" class="reset-btn upload-btn hidden" type="button">Replace Photo</button>
           </div>
         </div>
 
@@ -188,7 +197,7 @@
   </section>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=6"></script>
-  <script src="app.js?v=6"></script>
+  <script src="supabase-config.js?v=9"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
