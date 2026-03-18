@@ -1,21 +1,17 @@
----
+# COPYRIGHT
 
-# ✅ 2. `LICENSE` (Custom – Strong but Clean)
-
-```txt
-Copyright (c) 2026 John E. Johnson
-SD Advisory Group — Powered by Self-Defi
+Copyright (c) 2026
 
 All rights reserved.
 
 This software and associated documentation files (the "Software") are proprietary.
 
 Permission is NOT granted to:
-- Copy
-- Modify
-- Distribute
-- Sell
-- Sublicense
+- Copy  
+- Modify  
+- Distribute  
+- Sell  
+- Sublicense  
 
 without explicit written permission.
 
