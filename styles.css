@@ -512,6 +512,11 @@ textarea:focus {
   color: #ffffff;
 }
 
+.badge.damaged {
+  background: #d9b0aa;
+  color: #6b1f14;
+}
+
 .empty-message td {
   text-align: center;
   color: var(--kw-brown);
