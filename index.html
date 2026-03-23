@@ -66,7 +66,16 @@
 
         <div class="search-box">
           <label for="searchValue">Search</label>
-          <input id="searchValue" type="text" placeholder="Search rack code (ex: 302-02B)" />
+
+          <input
+            id="searchValue"
+            type="text"
+            placeholder="Search rack code (ex: 302-02B)"
+          />
+
+          <select id="projectSearchSelect" class="hidden">
+            <option value="">Select project</option>
+          </select>
         </div>
       </div>
     </section>
@@ -206,7 +215,7 @@
   </section>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./supabase-config.js?v=14"></script>
-  <script src="./app.js?v=14"></script>
+  <script src="./supabase-config.js?v=15"></script>
+  <script src="./app.js?v=15"></script>
 </body>
 </html>
