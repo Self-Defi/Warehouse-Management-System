@@ -105,6 +105,42 @@ function renderProjectDatalist() {
   datalist.innerHTML = options;
 }
 
+function renderProjectSearchSelect() {
+  const select = document.getElementById("projectSearchSelect");
+  if (!select) return;
+
+  const options = ['<option value="">Select project</option>']
+    .concat(
+      getUniqueProjectNames().map(
+        (project) => `<option value="${escapeHtml(project)}">${escapeHtml(project)}</option>`
+      )
+    )
+    .join("");
+
+  select.innerHTML = options;
+
+  if (searchType === "project_name") {
+    select.value = searchValue || "";
+  }
+}
+
+function syncSearchControls() {
+  const textInput = document.getElementById("searchValue");
+  const projectSelect = document.getElementById("projectSearchSelect");
+
+  if (!textInput || !projectSelect) return;
+
+  if (searchType === "project_name") {
+    textInput.classList.add("hidden");
+    projectSelect.classList.remove("hidden");
+    projectSelect.value = searchValue || "";
+  } else {
+    projectSelect.classList.add("hidden");
+    textInput.classList.remove("hidden");
+    textInput.value = searchValue || "";
+  }
+}
+
 function updateSearchPlaceholder() {
   const input = document.getElementById("searchValue");
   if (!input) return;
@@ -363,6 +399,8 @@ function renderInventory() {
   updateUiForSearch(filteredInventory);
   updateCounts();
   renderProjectDatalist();
+  renderProjectSearchSelect();
+  syncSearchControls();
 
   table.innerHTML = "";
 
@@ -612,7 +650,6 @@ function applyLookupFromUrl() {
   const rackCode = params.get("rack");
 
   const searchTypeEl = document.getElementById("searchType");
-  const searchValueEl = document.getElementById("searchValue");
 
   if (itemCode) {
     searchType = "item_code";
@@ -624,7 +661,6 @@ function applyLookupFromUrl() {
 
   if (searchTypeEl) searchTypeEl.value = searchType;
   updateSearchPlaceholder();
-  if (searchValueEl) searchValueEl.value = searchValue;
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -633,6 +669,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const closeItemCardBtn = document.getElementById("closeItemCardBtn");
   const searchTypeEl = document.getElementById("searchType");
   const searchValueEl = document.getElementById("searchValue");
+  const projectSearchSelect = document.getElementById("projectSearchSelect");
   const closeRackModalBtn = document.getElementById("closeRackModalBtn");
   const rackModalBackdrop = document.getElementById("rackModalBackdrop");
   const uploadImageBtn = document.getElementById("uploadImageBtn");
@@ -641,6 +678,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   applyLookupFromUrl();
   updateSearchPlaceholder();
+  syncSearchControls();
 
   if (addRowBtn) addRowBtn.addEventListener("click", addRow);
   if (refreshBtn) refreshBtn.addEventListener("click", () => refreshData(true));
@@ -667,13 +705,26 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (searchTypeEl) {
     searchTypeEl.addEventListener("change", (event) => {
       searchType = event.target.value || "rack_code";
+      searchValue = "";
       updateSearchPlaceholder();
+
+      if (searchValueEl) searchValueEl.value = "";
+      if (projectSearchSelect) projectSearchSelect.value = "";
+
+      syncSearchControls();
       renderInventory();
     });
   }
 
   if (searchValueEl) {
     searchValueEl.addEventListener("input", (event) => {
+      searchValue = event.target.value || "";
+      renderInventory();
+    });
+  }
+
+  if (projectSearchSelect) {
+    projectSearchSelect.addEventListener("change", (event) => {
       searchValue = event.target.value || "";
       renderInventory();
     });
