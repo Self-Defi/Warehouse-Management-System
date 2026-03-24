@@ -14,8 +14,8 @@
           <div class="eyebrow">Warehouse Management System</div>
           <h1>Live Inventory & Rack Visibility</h1>
           <p>
-            Track inventory by rack location, assign items to live warehouse slots, and retrieve rack contents
-            instantly through the live warehouse backend.
+            Track inventory by rack location, assign items to live warehouse slots, retrieve rack contents instantly,
+            and manage install-day pull lists from the same WMS.
           </p>
         </div>
 
@@ -38,139 +38,224 @@
   </header>
 
   <main class="container">
-    <section class="section-head">
-      <div>
-        <h2>Inventory Search</h2>
-        <div class="section-copy">
-          Search by rack code, item code, project, or across all visible fields.
-        </div>
-      </div>
-
-      <div class="button-group">
-        <button id="refreshBtn" class="add-btn" type="button">Refresh Data</button>
-        <button id="addRowBtn" class="reset-btn" type="button">Add Item</button>
-      </div>
+    <section class="wms-tabs">
+      <button id="inventoryTabBtn" class="wms-tab active" type="button">Inventory</button>
+      <button id="installDayTabBtn" class="wms-tab" type="button">Install Day</button>
     </section>
 
-    <section class="search-section">
-      <div class="search-controls">
-        <div class="search-mode">
-          <label for="searchType">Search Mode</label>
-          <select id="searchType">
-            <option value="rack_code">Rack Code</option>
-            <option value="item_code">Item Code</option>
-            <option value="project_name">Project</option>
-            <option value="all">All Fields</option>
-          </select>
+    <!-- INVENTORY TAB -->
+    <section id="inventoryTab" class="wms-tab-panel active">
+      <section class="section-head">
+        <div>
+          <h2>Inventory Search</h2>
+          <div class="section-copy">
+            Search by rack code, item code, project, or across all visible fields.
+          </div>
         </div>
 
-        <div class="search-box">
-          <label for="searchValue">Search</label>
-
-          <input
-            id="searchValue"
-            type="text"
-            placeholder="Search rack code (ex: 302-02B)"
-          />
-
-          <select id="projectSearchSelect" class="hidden">
-            <option value="">Select project</option>
-          </select>
+        <div class="button-group">
+          <button id="refreshBtn" class="add-btn" type="button">Refresh Data</button>
+          <button id="addRowBtn" class="reset-btn" type="button">Add Item</button>
         </div>
-      </div>
+      </section>
+
+      <section class="search-section">
+        <div class="search-controls">
+          <div class="search-mode">
+            <label for="searchType">Search Mode</label>
+            <select id="searchType">
+              <option value="rack_code">Rack Code</option>
+              <option value="item_code">Item Code</option>
+              <option value="project_name">Project</option>
+              <option value="all">All Fields</option>
+            </select>
+          </div>
+
+          <div class="search-box">
+            <label for="searchValue">Search</label>
+
+            <input
+              id="searchValue"
+              type="text"
+              placeholder="Search rack code (ex: 302-02B)"
+            />
+
+            <select id="projectSearchSelect" class="hidden">
+              <option value="">Select project</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section id="messageBar" class="message hidden" aria-live="polite"></section>
+
+      <section id="itemCardSection" class="item-card-section hidden">
+        <div class="item-card">
+          <div class="item-card-image">
+            <div class="image-frame">
+              <img id="detailImage" class="detail-image hidden" alt="Item photo" />
+              <div id="imagePlaceholder" class="image-placeholder">
+                <span>Warehouse Item</span>
+                <small>No image uploaded yet</small>
+              </div>
+            </div>
+
+            <div class="upload-panel">
+              <input id="detailImageInput" type="file" accept="image/*" class="hidden" />
+              <button id="uploadImageBtn" class="add-btn upload-btn" type="button">Upload Photo</button>
+              <button id="replaceImageBtn" class="reset-btn upload-btn hidden" type="button">Replace Photo</button>
+            </div>
+          </div>
+
+          <div class="item-card-content">
+            <div class="item-card-head">
+              <div>
+                <h3 id="detailItemName">Item</h3>
+                <div id="detailStatusBadge" class="badge received">Received</div>
+              </div>
+              <button id="closeItemCardBtn" class="reset-btn" type="button">Close</button>
+            </div>
+
+            <div class="detail-grid">
+              <div class="detail-box">
+                <label>Item Code</label>
+                <div id="detailItemCode"></div>
+              </div>
+
+              <div class="detail-box">
+                <label>Project</label>
+                <div id="detailProject"></div>
+              </div>
+
+              <div class="detail-box">
+                <label>Quantity</label>
+                <div id="detailQuantity"></div>
+              </div>
+
+              <div class="detail-box">
+                <label>Rack Code</label>
+                <div id="detailRackCode"></div>
+              </div>
+
+              <div class="detail-box">
+                <label>Status</label>
+                <div id="detailStatus"></div>
+              </div>
+
+              <div class="detail-box full">
+                <label>Notes</label>
+                <div id="detailNotes"></div>
+              </div>
+
+              <div class="detail-box full">
+                <label>Created</label>
+                <div id="detailCreatedAt"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <datalist id="projectList"></datalist>
+
+      <section class="table-section">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Item Code</th>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Rack Code</th>
+                <th>Notes</th>
+                <th>Created</th>
+                <th>Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTable"></tbody>
+          </table>
+        </div>
+      </section>
     </section>
 
-    <section id="messageBar" class="message hidden" aria-live="polite"></section>
-
-    <section id="itemCardSection" class="item-card-section hidden">
-      <div class="item-card">
-        <div class="item-card-image">
-          <div class="image-frame">
-            <img id="detailImage" class="detail-image hidden" alt="Item photo" />
-            <div id="imagePlaceholder" class="image-placeholder">
-              <span>Warehouse Item</span>
-              <small>No image uploaded yet</small>
-            </div>
-          </div>
-
-          <div class="upload-panel">
-            <input id="detailImageInput" type="file" accept="image/*" class="hidden" />
-            <button id="uploadImageBtn" class="add-btn upload-btn" type="button">Upload Photo</button>
-            <button id="replaceImageBtn" class="reset-btn upload-btn hidden" type="button">Replace Photo</button>
+    <!-- INSTALL DAY TAB -->
+    <section id="installDayTab" class="wms-tab-panel hidden">
+      <section class="section-head">
+        <div>
+          <h2>Install Day Pull List</h2>
+          <div class="section-copy">
+            Build and edit install-day pull sheets inside the WMS. Local browser save for testing mode.
           </div>
         </div>
 
-        <div class="item-card-content">
-          <div class="item-card-head">
-            <div>
-              <h3 id="detailItemName">Item</h3>
-              <div id="detailStatusBadge" class="badge received">Received</div>
-            </div>
-            <button id="closeItemCardBtn" class="reset-btn" type="button">Close</button>
+        <div class="button-group">
+          <button id="installDayAddBtn" class="add-btn" type="button">Add Pull Row</button>
+          <button id="installDaySaveBtn" class="reset-btn" type="button">Save Pull List</button>
+          <button id="installDayPrintBtn" class="reset-btn" type="button">Print</button>
+          <button id="installDayClearBtn" class="reset-btn danger-btn" type="button">Clear All</button>
+        </div>
+      </section>
+
+      <section class="search-section">
+        <div class="search-controls">
+          <div class="search-mode">
+            <label for="installProjectFilter">Project</label>
+            <select id="installProjectFilter">
+              <option value="">All Projects</option>
+            </select>
           </div>
 
-          <div class="detail-grid">
-            <div class="detail-box">
-              <label>Item Code</label>
-              <div id="detailItemCode"></div>
-            </div>
+          <div class="search-mode">
+            <label for="installStatusFilter">Pull Status</label>
+            <select id="installStatusFilter">
+              <option value="">All Statuses</option>
+              <option value="Not Pulled">Not Pulled</option>
+              <option value="Pulled">Pulled</option>
+              <option value="Staged">Staged</option>
+              <option value="Loaded">Loaded</option>
+              <option value="Issue">Issue</option>
+            </select>
+          </div>
 
-            <div class="detail-box">
-              <label>Project</label>
-              <div id="detailProject"></div>
-            </div>
-
-            <div class="detail-box">
-              <label>Quantity</label>
-              <div id="detailQuantity"></div>
-            </div>
-
-            <div class="detail-box">
-              <label>Rack Code</label>
-              <div id="detailRackCode"></div>
-            </div>
-
-            <div class="detail-box">
-              <label>Status</label>
-              <div id="detailStatus"></div>
-            </div>
-
-            <div class="detail-box full">
-              <label>Notes</label>
-              <div id="detailNotes"></div>
-            </div>
-
-            <div class="detail-box full">
-              <label>Created</label>
-              <div id="detailCreatedAt"></div>
-            </div>
+          <div class="search-box">
+            <label for="installSearch">Search</label>
+            <input
+              id="installSearch"
+              type="text"
+              placeholder="Search project, item, rack, staging, notes..."
+            />
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <datalist id="projectList"></datalist>
+      <section id="installDayMessage" class="message hidden" aria-live="polite"></section>
 
-    <section class="table-section">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Project</th>
-              <th>Item Code</th>
-              <th>Item Name</th>
-              <th>Quantity</th>
-              <th>Status</th>
-              <th>Rack Code</th>
-              <th>Notes</th>
-              <th>Created</th>
-              <th>Updated</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="inventoryTable"></tbody>
-        </table>
-      </div>
+      <section class="table-section">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Area</th>
+                <th>Item Code</th>
+                <th>Item Name</th>
+                <th>Qty</th>
+                <th>Rack Code</th>
+                <th>Pull Status</th>
+                <th>Staging</th>
+                <th>Loaded</th>
+                <th>Issue</th>
+                <th>Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="installDayTable"></tbody>
+          </table>
+        </div>
+      </section>
     </section>
   </main>
 
@@ -217,5 +302,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./supabase-config.js?v=15"></script>
   <script src="./app.js?v=15"></script>
+  <script src="./install-day.js?v=1"></script>
 </body>
 </html>
