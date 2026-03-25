@@ -714,12 +714,28 @@ textarea:focus {
   border-radius: 8px;
   border: 1px solid #ccb8a3;
   background: #ffffff;
-  color: #3f3127;
+  color: #3f3127 !important;
+  -webkit-text-fill-color: #3f3127 !important;
+  opacity: 1;
   font: inherit;
 }
 
 .install-input::placeholder {
   color: #a79a8d;
+  -webkit-text-fill-color: #a79a8d;
+}
+
+.install-input:focus {
+  outline: none;
+  border-color: #8a5a32;
+  box-shadow: 0 0 0 2px rgba(138, 90, 50, 0.12);
+}
+
+#installDayTable input,
+#installDayTable select {
+  color: #3f3127 !important;
+  -webkit-text-fill-color: #3f3127 !important;
+  background: #ffffff !important;
 }
 
 .install-delete-btn {
