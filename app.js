@@ -495,6 +495,7 @@ async function refreshData(showToast = false) {
 
     setConnectionState("success", "Connected");
     renderInventory();
+    document.dispatchEvent(new CustomEvent("inventoryDataUpdated"));
 
     if (showToast) {
       showMessage("Inventory refreshed from backend.", "success");
@@ -740,3 +741,4 @@ window.openItemCardById = openItemCardById;
 window.closeRackModal = closeRackModal;
 window.updateField = updateField;
 window.deleteRow = deleteRow;
+window.getInventoryItems = () => inventory.slice();
