@@ -1,5 +1,5 @@
 (function () {
-  const STORAGE_KEY = "kw_install_day_pull_list_v3";
+  const STORAGE_KEY = "kw_install_day_pull_list_v4";
 
   const inventoryTabBtn = document.getElementById("inventoryTabBtn");
   const installDayTabBtn = document.getElementById("installDayTabBtn");
@@ -52,10 +52,32 @@
     return `pull_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   }
 
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function getLiveInventory() {
+    try {
+      if (typeof window.getInventoryItems === "function") {
+        return window.getInventoryItems() || [];
+      }
+      return [];
+    } catch (err) {
+      return [];
+    }
+  }
+
   function blankRow() {
     return {
       id: uid(),
       project: "",
+      sourceItemId: "",
+      sourceItemCode: "",
       area: "",
       category: "",
       type: "",
@@ -88,8 +110,8 @@
   function getInventoryProjects() {
     const values = new Set();
 
-    document.querySelectorAll("#projectList option").forEach((option) => {
-      const value = option.value?.trim();
+    getLiveInventory().forEach((item) => {
+      const value = String(item.project_name || "").trim();
       if (value) values.add(value);
     });
 
@@ -130,13 +152,50 @@
     }
   }
 
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+  function getEffectiveProjectForRow(row) {
+    return (
+      row.project ||
+      installProjectFilter?.value ||
+      installProjectSearch?.value ||
+      ""
+    );
+  }
+
+  function getInventoryOptionsForProject(projectName) {
+    const target = String(projectName || "").trim().toLowerCase();
+    const items = getLiveInventory();
+
+    const filtered = target
+      ? items.filter((item) => String(item.project_name || "").trim().toLowerCase() === target)
+      : items;
+
+    return filtered
+      .slice()
+      .sort((a, b) => {
+        const aCode = String(a.item_code || "");
+        const bCode = String(b.item_code || "");
+        return aCode.localeCompare(bCode);
+      });
+  }
+
+  function buildInventorySelect(row) {
+    const projectName = getEffectiveProjectForRow(row);
+    const options = getInventoryOptionsForProject(projectName);
+
+    const defaultOption = `<option value="">Select inventory item</option>`;
+
+    const optionHtml = options.map((item) => {
+      const label = `${item.item_code || "No Code"} — ${item.item_name || "Unnamed Item"}`;
+      const selected = String(item.id) === String(row.sourceItemId) ? "selected" : "";
+      return `<option value="${escapeHtml(item.id)}" ${selected}>${escapeHtml(label)}</option>`;
+    }).join("");
+
+    return `
+      <select class="install-input install-source-select" data-field="sourceItemId">
+        ${defaultOption}
+        ${optionHtml}
+      </select>
+    `;
   }
 
   function filteredRows() {
@@ -164,7 +223,7 @@
     if (!rows.length) {
       installDayTable.innerHTML = `
         <tr>
-          <td colspan="13" style="text-align:center; opacity:.75; padding: 20px;">
+          <td colspan="14" style="text-align:center; opacity:.75; padding: 20px;">
             No install-day pull rows found.
           </td>
         </tr>
@@ -175,12 +234,64 @@
     installDayTable.innerHTML = rows.map((row) => {
       return `
         <tr data-row-id="${escapeHtml(row.id)}">
-          <td><input class="install-input" data-field="project" value="${escapeHtml(row.project)}" placeholder="Project" /></td>
-          <td><input class="install-input" data-field="area" value="${escapeHtml(row.area)}" placeholder="Area" /></td>
-          <td><input class="install-input" data-field="category" value="${escapeHtml(row.category)}" placeholder="Category" /></td>
-          <td><input class="install-input" data-field="type" value="${escapeHtml(row.type)}" placeholder="Type" /></td>
-          <td><input class="install-input" data-field="name" value="${escapeHtml(row.name)}" placeholder="Name" /></td>
-          <td><input class="install-input" data-field="quantity" type="number" min="1" value="${escapeHtml(row.quantity)}" /></td>
+          <td>
+            <input
+              class="install-input"
+              data-field="project"
+              value="${escapeHtml(row.project)}"
+              placeholder="Project"
+            />
+          </td>
+
+          <td>
+            ${buildInventorySelect(row)}
+          </td>
+
+          <td>
+            <input
+              class="install-input"
+              data-field="area"
+              value="${escapeHtml(row.area)}"
+              placeholder="Area"
+            />
+          </td>
+
+          <td>
+            <input
+              class="install-input"
+              data-field="category"
+              value="${escapeHtml(row.category)}"
+              placeholder="Category"
+            />
+          </td>
+
+          <td>
+            <input
+              class="install-input"
+              data-field="type"
+              value="${escapeHtml(row.type)}"
+              placeholder="Type"
+            />
+          </td>
+
+          <td>
+            <input
+              class="install-input"
+              data-field="name"
+              value="${escapeHtml(row.name)}"
+              placeholder="Name"
+            />
+          </td>
+
+          <td>
+            <input
+              class="install-input"
+              data-field="quantity"
+              type="number"
+              min="1"
+              value="${escapeHtml(row.quantity)}"
+            />
+          </td>
 
           <td>
             <div class="install-image-cell">
@@ -191,7 +302,13 @@
               }
               <label class="install-upload-btn">
                 Upload
-                <input type="file" accept="image/*" class="install-image-input" data-row-id="${escapeHtml(row.id)}" hidden />
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="install-image-input"
+                  data-row-id="${escapeHtml(row.id)}"
+                  hidden
+                />
               </label>
             </div>
           </td>
@@ -206,7 +323,14 @@
             </select>
           </td>
 
-          <td><input class="install-input" data-field="staging" value="${escapeHtml(row.staging)}" placeholder="Staging Zone" /></td>
+          <td>
+            <input
+              class="install-input"
+              data-field="staging"
+              value="${escapeHtml(row.staging)}"
+              placeholder="Staging Zone"
+            />
+          </td>
 
           <td style="text-align:center;">
             <input data-field="loaded" type="checkbox" ${row.loaded ? "checked" : ""} />
@@ -216,7 +340,14 @@
             <input data-field="issue" type="checkbox" ${row.issue ? "checked" : ""} />
           </td>
 
-          <td><input class="install-input" data-field="notes" value="${escapeHtml(row.notes)}" placeholder="Notes" /></td>
+          <td>
+            <input
+              class="install-input"
+              data-field="notes"
+              value="${escapeHtml(row.notes)}"
+              placeholder="Notes"
+            />
+          </td>
 
           <td>
             <button class="reset-btn install-delete-btn" type="button">Delete</button>
@@ -241,7 +372,47 @@
     });
 
     saveRows();
-    populateProjectDropdowns();
+  }
+
+  function autoFillFromInventory(rowId, sourceItemId) {
+    const liveItems = getLiveInventory();
+    const selectedItem = liveItems.find((item) => String(item.id) === String(sourceItemId));
+
+    if (!selectedItem) {
+      installRows = installRows.map((row) => {
+        if (row.id !== rowId) return row;
+        return {
+          ...row,
+          sourceItemId: "",
+          sourceItemCode: ""
+        };
+      });
+      saveRows();
+      render();
+      return;
+    }
+
+    installRows = installRows.map((row) => {
+      if (row.id !== rowId) return row;
+
+      return {
+        ...row,
+        sourceItemId: String(selectedItem.id),
+        sourceItemCode: selectedItem.item_code || "",
+        project: selectedItem.project_name || row.project || "",
+        area: selectedItem.area || row.area || "",
+        category: selectedItem.category || row.category || "",
+        type: selectedItem.type || row.type || "",
+        name: selectedItem.item_name || row.name || "",
+        quantity: Number(selectedItem.quantity) || 1,
+        imageData: selectedItem.image_url || row.imageData || "",
+        notes: row.notes || selectedItem.notes || ""
+      };
+    });
+
+    saveRows();
+    render();
+    showMessage("Install row auto-filled from inventory.");
   }
 
   function deleteRow(rowId) {
@@ -284,6 +455,13 @@
       const reader = new FileReader();
       reader.onload = () => updateRowImage(rowId, reader.result);
       reader.readAsDataURL(file);
+      return;
+    }
+
+    if (target.classList.contains("install-source-select")) {
+      const rowEl = target.closest("tr[data-row-id]");
+      if (!rowEl) return;
+      autoFillFromInventory(rowEl.dataset.rowId, target.value);
       return;
     }
 
@@ -364,6 +542,10 @@
   });
 
   installStatusFilter?.addEventListener("change", render);
+
+  document.addEventListener("inventoryDataUpdated", () => {
+    render();
+  });
 
   render();
 })();
