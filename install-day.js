@@ -1,5 +1,5 @@
 (function () {
-  const STORAGE_KEY = "kw_install_day_pull_list_v1";
+  const STORAGE_KEY = "kw_install_day_pull_list_v2";
 
   const inventoryTabBtn = document.getElementById("inventoryTabBtn");
   const installDayTabBtn = document.getElementById("installDayTabBtn");
@@ -12,8 +12,8 @@
   const installDayClearBtn = document.getElementById("installDayClearBtn");
 
   const installProjectFilter = document.getElementById("installProjectFilter");
+  const installProjectSearch = document.getElementById("installProjectSearch");
   const installStatusFilter = document.getElementById("installStatusFilter");
-  const installSearch = document.getElementById("installSearch");
   const installDayTable = document.getElementById("installDayTable");
   const installDayMessage = document.getElementById("installDayMessage");
 
@@ -21,9 +21,9 @@
 
   function showMessage(text, tone = "success") {
     if (!installDayMessage) return;
+
     installDayMessage.textContent = text;
-    installDayMessage.classList.remove("hidden");
-    installDayMessage.classList.remove("error", "success", "neutral");
+    installDayMessage.classList.remove("hidden", "error", "success", "neutral");
     installDayMessage.classList.add(tone);
 
     clearTimeout(showMessage._timer);
@@ -100,20 +100,33 @@
     return Array.from(values).sort((a, b) => a.localeCompare(b));
   }
 
-  function populateProjectFilter() {
+  function populateProjectDropdowns() {
     const projects = getInventoryProjects();
-    const current = installProjectFilter.value;
 
-    installProjectFilter.innerHTML = `<option value="">All Projects</option>`;
+    const currentFilter = installProjectFilter?.value || "";
+    const currentSearch = installProjectSearch?.value || "";
 
-    projects.forEach((project) => {
-      const option = document.createElement("option");
-      option.value = project;
-      option.textContent = project;
-      installProjectFilter.appendChild(option);
-    });
+    if (installProjectFilter) {
+      installProjectFilter.innerHTML = `<option value="">All Projects</option>`;
+      projects.forEach((project) => {
+        const option = document.createElement("option");
+        option.value = project;
+        option.textContent = project;
+        installProjectFilter.appendChild(option);
+      });
+      installProjectFilter.value = projects.includes(currentFilter) ? currentFilter : "";
+    }
 
-    installProjectFilter.value = projects.includes(current) ? current : "";
+    if (installProjectSearch) {
+      installProjectSearch.innerHTML = `<option value="">Select project</option>`;
+      projects.forEach((project) => {
+        const option = document.createElement("option");
+        option.value = project;
+        option.textContent = project;
+        installProjectSearch.appendChild(option);
+      });
+      installProjectSearch.value = projects.includes(currentSearch) ? currentSearch : "";
+    }
   }
 
   function escapeHtml(value) {
@@ -126,35 +139,24 @@
   }
 
   function filteredRows() {
-    const projectValue = installProjectFilter.value.trim().toLowerCase();
-    const statusValue = installStatusFilter.value.trim().toLowerCase();
-    const searchValue = installSearch.value.trim().toLowerCase();
+    const projectValue = (installProjectFilter?.value || "").trim().toLowerCase();
+    const searchProjectValue = (installProjectSearch?.value || "").trim().toLowerCase();
+    const statusValue = (installStatusFilter?.value || "").trim().toLowerCase();
 
     return installRows.filter((row) => {
-      const matchesProject = !projectValue || String(row.project).toLowerCase() === projectValue;
-      const matchesStatus = !statusValue || String(row.pullStatus).toLowerCase() === statusValue;
+      const rowProject = String(row.project || "").trim().toLowerCase();
+      const rowStatus = String(row.pullStatus || "").trim().toLowerCase();
 
-      const haystack = [
-        row.project,
-        row.area,
-        row.itemCode,
-        row.itemName,
-        row.rackCode,
-        row.staging,
-        row.notes,
-        row.pullStatus
-      ]
-        .join(" ")
-        .toLowerCase();
+      const matchesProjectFilter = !projectValue || rowProject === projectValue;
+      const matchesProjectSearch = !searchProjectValue || rowProject === searchProjectValue;
+      const matchesStatus = !statusValue || rowStatus === statusValue;
 
-      const matchesSearch = !searchValue || haystack.includes(searchValue);
-
-      return matchesProject && matchesStatus && matchesSearch;
+      return matchesProjectFilter && matchesProjectSearch && matchesStatus;
     });
   }
 
   function render() {
-    populateProjectFilter();
+    populateProjectDropdowns();
 
     const rows = filteredRows();
 
@@ -218,7 +220,7 @@
     });
 
     saveRows();
-    populateProjectFilter();
+    populateProjectDropdowns();
   }
 
   function deleteRow(rowId) {
@@ -254,6 +256,7 @@
     }
 
     updateRow(rowId, field, target.value);
+    render();
   });
 
   installDayTable?.addEventListener("click", (event) => {
@@ -268,7 +271,19 @@
   });
 
   installDayAddBtn?.addEventListener("click", () => {
-    installRows.unshift(blankRow());
+    const row = blankRow();
+
+    if (installProjectFilter?.value) {
+      row.project = installProjectFilter.value;
+    } else if (installProjectSearch?.value) {
+      row.project = installProjectSearch.value;
+    }
+
+    if (installStatusFilter?.value) {
+      row.pullStatus = installStatusFilter.value;
+    }
+
+    installRows.unshift(row);
     saveRows();
     render();
     showMessage("New pull row added.");
@@ -294,8 +309,15 @@
   });
 
   installProjectFilter?.addEventListener("change", render);
+  installProjectSearch?.addEventListener("change", () => {
+    if (installProjectSearch.value) {
+      installProjectFilter.value = installProjectSearch.value;
+    } else {
+      installProjectFilter.value = "";
+    }
+    render();
+  });
   installStatusFilter?.addEventListener("change", render);
-  installSearch?.addEventListener("input", render);
 
   render();
 })();
