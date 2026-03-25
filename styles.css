@@ -45,8 +45,8 @@ body {
   margin-bottom: 14px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: var(--kw-cream-soft);
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -56,8 +56,8 @@ body {
 
 .status-panel {
   min-width: 250px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 18px;
   padding: 18px;
 }
@@ -94,7 +94,7 @@ body {
 }
 
 .pill.neutral {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   color: var(--kw-cream);
 }
 
@@ -196,12 +196,18 @@ p {
   background: #eef7ef;
   border-color: #b8d2bc;
   color: #2f5b38;
+  border-left: 4px solid #23c55e;
 }
 
 .message.error {
   background: #fff1ee;
   border-color: #e2beb5;
   color: #7a2316;
+  border-left: 4px solid #ef4444;
+}
+
+.message.neutral {
+  border-left: 4px solid #64748b;
 }
 
 .item-card-section {
@@ -642,34 +648,9 @@ textarea:focus {
   border-color: var(--kw-brown);
 }
 
-@media (max-width: 900px) {
-  .hero {
-    padding: 48px 20px;
-  }
-
-  .container {
-    padding: 0 16px;
-  }
-
-  .search-controls {
-    grid-template-columns: 1fr;
-  }
-
-  .item-card {
-    grid-template-columns: 1fr;
-  }
-
-  .detail-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-panel {
-    width: calc(100% - 16px);
-    margin: 8px auto;
-    max-height: calc(100vh - 16px);
-  }
-}
-
+/* =========================================================
+   WMS TABS
+   ========================================================= */
 .wms-tabs {
   display: inline-flex;
   background: #e9dfd3;
@@ -703,6 +684,9 @@ textarea:focus {
   display: none;
 }
 
+/* =========================================================
+   INSTALL DAY
+   ========================================================= */
 .danger-btn {
   border-color: rgba(255, 90, 90, 0.4);
 }
@@ -732,28 +716,100 @@ textarea:focus {
 }
 
 #installDayTable input,
-#installDayTable select {
+#installDayTable select,
+#installDayTable td input.install-input,
+#installDayTable td select.install-input {
   color: #3f3127 !important;
   -webkit-text-fill-color: #3f3127 !important;
   background: #ffffff !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
 }
 
 .install-delete-btn {
   white-space: nowrap;
 }
 
-.message.success {
-  border-left: 4px solid #23c55e;
+.install-image-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 92px;
 }
 
-.message.error {
-  border-left: 4px solid #ef4444;
+.install-thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #ccb8a3;
+  background: #fff;
 }
 
-.message.neutral {
-  border-left: 4px solid #64748b;
+.install-thumb-placeholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  border: 1px dashed #ccb8a3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #8f7b68;
+  background: #fff;
+  text-align: center;
+  padding: 4px;
 }
 
+.install-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #7a4f2a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero {
+    padding: 48px 20px;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .search-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .item-card {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-panel {
+    width: calc(100% - 16px);
+    margin: 8px auto;
+    max-height: calc(100vh - 16px);
+  }
+}
+
+/* =========================================================
+   PRINT
+   ========================================================= */
 @media print {
   .hero,
   .site-footer,
@@ -764,6 +820,8 @@ textarea:focus {
   #installDayClearBtn,
   #installDayPrintBtn,
   .install-delete-btn,
+  .install-upload-btn,
+  .install-thumb-placeholder,
   .search-section,
   .button-group {
     display: none !important;
@@ -787,7 +845,8 @@ textarea:focus {
     border-collapse: collapse;
   }
 
-  th, td {
+  th,
+  td {
     color: #000 !important;
     border: 1px solid #ccc;
     padding: 8px;
@@ -797,6 +856,14 @@ textarea:focus {
     border: none !important;
     background: transparent !important;
     color: #000 !important;
+    -webkit-text-fill-color: #000 !important;
     padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .install-thumb {
+    width: 48px;
+    height: 48px;
+    border: 1px solid #ccc;
   }
 }
